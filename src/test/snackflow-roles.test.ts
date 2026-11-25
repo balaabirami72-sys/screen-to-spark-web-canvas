@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getRoleNavigation } from "@/lib/snackflow";
+import { getRoleNavigation, getWorkspaceNavigation } from "@/lib/snackflow";
 
 describe("SnackFlow Phase 1 role menus", () => {
   it("gives admins every Phase 1 screen", () => {
@@ -34,5 +34,21 @@ describe("SnackFlow Phase 1 role menus", () => {
 
   it("does not expose later-phase order screens to salesmen yet", () => {
     expect(getRoleNavigation(["salesman"])).toEqual([]);
+  });
+
+  it("lets admins switch to a staff view containing only stock screens", () => {
+    expect(getWorkspaceNavigation(["admin"], "staff")).toEqual([
+      "stock-summary",
+      "stock-ledger",
+    ]);
+  });
+
+  it("does not let the admin mode widen a non-admin role's screens", () => {
+    expect(getWorkspaceNavigation(["production"], "admin")).toEqual([
+      "stock-summary",
+      "stock-ledger",
+      "items",
+      "bom",
+    ]);
   });
 });

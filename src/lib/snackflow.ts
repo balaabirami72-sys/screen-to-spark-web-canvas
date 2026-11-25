@@ -1,6 +1,7 @@
 import type { Database } from "@/integrations/supabase/types";
 
 export type AppRole = Database["public"]["Enums"]["app_role"];
+export type WorkspaceMode = "admin" | "staff";
 export type WorkspaceView =
   "stock-summary" | "stock-ledger" | "items" | "customers" | "suppliers" | "bom" | "staff";
 
@@ -43,6 +44,17 @@ const roleScreens: Record<AppRole, readonly WorkspaceView[]> = {
 export function getRoleNavigation(roles: readonly AppRole[]): WorkspaceView[] {
   const visible = new Set(roles.flatMap((role) => roleScreens[role]));
   return screenOrder.filter((screen) => visible.has(screen));
+}
+
+export function getWorkspaceNavigation(
+  roles: readonly AppRole[],
+  mode: WorkspaceMode,
+): WorkspaceView[] {
+  const allowedScreens = getRoleNavigation(roles);
+  if (!roles.includes("admin") || mode === "admin") return allowedScreens;
+
+  const staffScreens: readonly WorkspaceView[] = ["stock-summary", "stock-ledger"];
+  return allowedScreens.filter((screen) => staffScreens.includes(screen));
 }
 
 export function canManageMasters(roles: readonly AppRole[]): boolean {

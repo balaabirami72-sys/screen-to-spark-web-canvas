@@ -21,10 +21,11 @@ import {
   canManageBom,
   canManageMasters,
   canPostAdjustments,
-  getRoleNavigation,
+  getWorkspaceNavigation,
   roleLabels,
   screenLabels,
   type AppRole,
+  type WorkspaceMode,
   type WorkspaceView,
 } from "@/lib/snackflow";
 import {
@@ -60,6 +61,7 @@ export function Workspace({ user }: { user: User }) {
     },
   });
   const [activeView, setActiveView] = useState<WorkspaceView>("stock-summary");
+  const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>("admin");
 
   if (rolesQuery.isPending) {
     return (
@@ -79,7 +81,8 @@ export function Workspace({ user }: { user: User }) {
   }
 
   const roles = rolesQuery.data ?? [];
-  const navigation = getRoleNavigation(roles);
+  const isAdmin = roles.includes("admin");
+  const navigation = getWorkspaceNavigation(roles, isAdmin ? workspaceMode : "admin");
   if (roles.length === 0) {
     return (
       <WorkspaceMessage
@@ -118,6 +121,11 @@ export function Workspace({ user }: { user: User }) {
           <p className="mt-2 truncate text-sm font-medium">{user.email ?? "Staff account"}</p>
           <p className="mt-1 text-xs text-sidebar-primary">{roleLabel}</p>
         </div>
+        {isAdmin && (
+          <div className="mt-4 px-1">
+            <WorkspaceModeSwitch mode={workspaceMode} onChange={setWorkspaceMode} />
+          </div>
+        )}
         <nav aria-label="Main navigation" className="mt-5 flex-1 space-y-1">
           <p className="px-3 pb-2 text-xs font-semibold uppercase text-sidebar-foreground/55">
             Workspace
@@ -175,6 +183,12 @@ export function Workspace({ user }: { user: User }) {
           </div>
         </header>
 
+        {isAdmin && (
+          <div className="border-b border-border px-4 py-2 md:hidden">
+            <WorkspaceModeSwitch mode={workspaceMode} onChange={setWorkspaceMode} />
+          </div>
+        )}
+
         <nav
           aria-label="Workspace sections"
           className="flex gap-1 overflow-x-auto border-b border-border px-3 py-2 md:hidden"
@@ -193,6 +207,40 @@ export function Workspace({ user }: { user: User }) {
         <main className="mx-auto min-w-0 max-w-screen-2xl px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
           <WorkspaceContent roles={roles} selectedView={selectedView} user={user} />
         </main>
+      </div>
+    </div>
+  );
+}
+
+function WorkspaceModeSwitch({
+  mode,
+  onChange,
+}: {
+  mode: WorkspaceMode;
+  onChange: (mode: WorkspaceMode) => void;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <span className="text-xs font-medium text-muted-foreground">Mode</span>
+      <div aria-label="Workspace mode" className="inline-flex items-center gap-1" role="group">
+        <Button
+          aria-pressed={mode === "admin"}
+          className="h-9 px-3"
+          onClick={() => onChange("admin")}
+          type="button"
+          variant={mode === "admin" ? "secondary" : "ghost"}
+        >
+          Admin
+        </Button>
+        <Button
+          aria-pressed={mode === "staff"}
+          className="h-9 px-3"
+          onClick={() => onChange("staff")}
+          type="button"
+          variant={mode === "staff" ? "secondary" : "ghost"}
+        >
+          Staff
+        </Button>
       </div>
     </div>
   );

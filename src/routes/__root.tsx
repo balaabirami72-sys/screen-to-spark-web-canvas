@@ -8,10 +8,12 @@ import {
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import { AuthContext, type AuthSnapshot } from "@/lib/auth-context";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
   return (
@@ -75,17 +77,16 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
-    // Replace these placeholders with the app's name and description when first building the app.
-    // Each content route, / included, must still set its own head(). Never add og:image or
+    // Every content route, / included, still sets its own head(). Never add og:image or
     // twitter:image here: every page without its own would inherit the root's preview image.
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "SnackFlow — Factory operations" },
+      { name: "description", content: "Staff access and stock operations for SnackFlow." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "SnackFlow — Factory operations" },
+      { property: "og:description", content: "Staff access and stock operations for SnackFlow." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
@@ -120,11 +121,49 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+  const [authSnapshot, setAuthSnapshot] = useState<AuthSnapshot>({ status: "loading", user: null });
+
+  useEffect(() => {
+    let identityTransition = 0;
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+      identityTransition += 1;
+      setAuthSnapshot({
+        status: session?.user ? "signed-in" : "signed-out",
+        user: session?.user ?? null,
+      });
+      router.invalidate();
+      if (event !== "SIGNED_OUT") void queryClient.invalidateQueries();
+    });
+
+    const initialTransition = identityTransition;
+    void supabase.auth
+      .getUser()
+      .then(({ data }) => {
+        if (identityTransition !== initialTransition) return;
+        setAuthSnapshot({
+          status: data.user ? "signed-in" : "signed-out",
+          user: data.user,
+        });
+      })
+      .catch(() => {
+        if (identityTransition === initialTransition) {
+          setAuthSnapshot({ status: "signed-out", user: null });
+        }
+      });
+
+    return () => subscription.unsubscribe();
+  }, [queryClient, router]);
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <AuthContext.Provider value={authSnapshot}>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+      </AuthContext.Provider>
     </QueryClientProvider>
   );
 }

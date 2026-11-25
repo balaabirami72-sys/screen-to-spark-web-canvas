@@ -11,6 +11,8 @@ type AuthMode = "sign-in" | "sign-up";
 
 export function AuthPanel() {
   const [mode, setMode] = useState<AuthMode>("sign-in");
+  const [displayName, setDisplayName] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -31,7 +33,13 @@ export function AuthPanel() {
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
-        options: { emailRedirectTo: window.location.origin },
+        options: {
+          data: {
+            display_name: displayName.trim(),
+            ...(phone.trim() ? { phone: phone.trim() } : {}),
+          },
+          emailRedirectTo: window.location.origin,
+        },
       });
       if (error) throw error;
 
@@ -149,6 +157,30 @@ export function AuthPanel() {
           </div>
 
           <form className="space-y-4" onSubmit={submitCredentials}>
+            {isSigningUp ? (
+              <>
+                <label className="block space-y-2 text-sm font-medium" htmlFor="staff-name">
+                  Display name
+                  <Input
+                    autoComplete="name"
+                    id="staff-name"
+                    onChange={(event) => setDisplayName(event.target.value)}
+                    required
+                    value={displayName}
+                  />
+                </label>
+                <label className="block space-y-2 text-sm font-medium" htmlFor="staff-phone">
+                  Phone number <span className="font-normal text-muted-foreground">(optional)</span>
+                  <Input
+                    autoComplete="tel"
+                    id="staff-phone"
+                    onChange={(event) => setPhone(event.target.value)}
+                    type="tel"
+                    value={phone}
+                  />
+                </label>
+              </>
+            ) : null}
             <label className="block space-y-2 text-sm font-medium" htmlFor="staff-email">
               Email address
               <Input

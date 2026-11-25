@@ -29,6 +29,6 @@ use the editor.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
 
-- Enforce application permissions in row-level policies and keep all role grants in a separate `public.user_roles` table; frontend role menus are presentation only, so they cannot substitute for database checks.
+- Keep staff profile data in `public.profiles` and enforce application permissions through `public.user_roles` and row-level policies; profile fields and frontend menus never grant roles.
 - Keep SnackFlow screens under `src/components/snackflow/` and let the `/` route handle only session-based entry; this keeps each Phase 1 work area isolated as the workspace grows.
 - Keep database-only multi-row changes in PostgreSQL functions called through the generated Cloud client; this preserves atomic writes while still applying row-level permissions.

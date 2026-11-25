@@ -43,6 +43,13 @@
       "when": 1795617113083,
       "tag": "0005_snackflow_role_check_tightening",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795617560023,
+      "tag": "0006_add_staff_profiles",
+      "breakpoints": true
     }
   ]
 }

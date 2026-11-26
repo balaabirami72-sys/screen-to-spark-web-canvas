@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { ArrowRight, Factory, LoaderCircle } from "lucide-react";
+import { ArrowRight, Factory, LoaderCircle, ShieldCheck } from "lucide-react";
 import { LovableMark } from "@lovable.dev/cloud-auth-js/react";
 
 import { Button } from "@/components/ui/button";
@@ -120,16 +120,31 @@ export function AuthPanel() {
           </div>
 
           <div className="mb-7">
-            <p className="text-sm font-medium text-primary">Staff access</p>
+            <p className="text-sm font-medium text-primary">Staff &amp; administrator access</p>
             <h2 className="mt-2 text-2xl font-semibold text-foreground">
               {isSigningUp ? "Create your account" : "Welcome back"}
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
               {isSigningUp
                 ? "Use the email assigned to your staff role."
-                : "Sign in to your factory workspace."}
+                : "Sign in with your assigned account to open your factory workspace."}
             </p>
           </div>
+
+          {!isSigningUp ? (
+            <Button
+              className="mb-5 h-10"
+              onClick={() => {
+                setEmail("admin@snackflow.test");
+                setNotice(null);
+              }}
+              type="button"
+              variant="outline"
+            >
+              <ShieldCheck aria-hidden="true" />
+              Administrator sign-in
+            </Button>
+          ) : null}
 
           <div className="mb-5 flex w-full border-b border-border">
             <Button

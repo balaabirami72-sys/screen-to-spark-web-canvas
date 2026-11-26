@@ -1,0 +1,55 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1795616480168,
+      "tag": "0000_snackflow_phase_one_core",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795616544221,
+      "tag": "0001_snackflow_auth_role_claims",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795616631239,
+      "tag": "0002_snackflow_atomic_bom_editing",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795616688650,
+      "tag": "0003_snackflow_policy_cleanup",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795616971409,
+      "tag": "0004_snackflow_bom_rpc_signature",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795617113083,
+      "tag": "0005_snackflow_role_check_tightening",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795617560023,
+      "tag": "0006_add_staff_profiles",
+      "breakpoints": true
+    }
+  ]
+}
